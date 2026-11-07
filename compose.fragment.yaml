@@ -1,0 +1,30 @@
+# ==============================================================================
+# ERPNext MCP Server - TrueNAS SCALE / Arcane Docker Compose Fragment
+# ==============================================================================
+# Option A: Append this service definition to your existing erpnext-allinone compose.yaml
+# Option B: Run as an independent stack connected to the same docker network or via public URL.
+
+services:
+  mcp-server:
+    image: amirul123/erpnext-mcp:latest
+    container_name: erpnext-mcp-server
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      # If on the same docker network as ERPNext, you can point to http://frontend:8080
+      # Or point directly to your public HTTPS domain:
+      ERPNEXT_URL: ${ERPNEXT_URL:-https://erpnext.my-edu.my}
+      
+      # Generated in ERPNext Desk -> Settings -> Users -> ai.agent@my-edu.my -> API Access
+      ERPNEXT_API_KEY: ${ERPNEXT_API_KEY:-replace_with_api_key}
+      ERPNEXT_API_SECRET: ${ERPNEXT_API_SECRET:-replace_with_api_secret}
+      
+      ERPNEXT_VERIFY_SSL: "true"
+      MCP_HOST: "0.0.0.0"
+      MCP_PORT: "8000"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/sse"]
+      interval: 30s
+      timeout: 5s
+      retries: 3

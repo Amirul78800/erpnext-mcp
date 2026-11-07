@@ -1,0 +1,16 @@
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+env
+venv
+.venv
+.git
+.github
+.gitignore
+.dockerignore
+compose.fragment.yaml
+README.md
+LICENSE
+push_to_github.bat
