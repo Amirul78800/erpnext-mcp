@@ -13,8 +13,8 @@ services:
       - "8000:8000"
     environment:
       # If on the same docker network as ERPNext, you can point to http://frontend:8080
-      # Or point directly to your public HTTPS domain:
-      ERPNEXT_URL: ${ERPNEXT_URL:-https://erpnext.my-edu.my}
+      # Or point to your public HTTPS domain:
+      ERPNEXT_URL: ${ERPNEXT_URL:-https://erp.example.com}
       
       # Generated in ERPNext Desk -> Settings -> Users -> ai.agent@my-edu.my -> API Access
       ERPNEXT_API_KEY: ${ERPNEXT_API_KEY:-replace_with_api_key}

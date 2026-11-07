@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(level
 logger = logging.getLogger("erpnext-mcp")
 
 # Environment configuration
-ERPNEXT_URL = os.getenv("ERPNEXT_URL", "https://erpnext.my-edu.my")
+ERPNEXT_URL = os.getenv("ERPNEXT_URL", "http://localhost:8080")
 ERPNEXT_API_KEY = os.getenv("ERPNEXT_API_KEY", "")
 ERPNEXT_API_SECRET = os.getenv("ERPNEXT_API_SECRET", "")
 VERIFY_SSL = os.getenv("ERPNEXT_VERIFY_SSL", "true").lower() in ("true", "1", "yes")

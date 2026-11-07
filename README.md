@@ -5,7 +5,7 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/amirul123/erpnext-mcp?style=flat-square)](https://hub.docker.com/r/amirul123/erpnext-mcp)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=flat-square)](LICENSE)
 
-An enterprise-ready **Model Context Protocol (MCP)** server built for **ERPNext v15/v16**. Designed to run as a multi-arch Docker container on **TrueNAS SCALE** and connect directly to **Antigravity AI**, **Claude**, or any MCP client over HTTP/SSE.
+An enterprise-ready **Model Context Protocol (MCP)** server built for **ERPNext v15/v16**. Designed to run as a multi-architecture Docker container (`linux/amd64`, `linux/arm64`) on **TrueNAS SCALE**, **Docker Compose**, **Kubernetes**, or any on-premise/cloud host, connecting directly to **Antigravity AI**, **Claude**, **Cursor**, or any MCP client over HTTP/SSE.
 
 ---
 
@@ -31,14 +31,14 @@ This repository features an automated GitHub Actions workflow (`.github/workflow
 
 ---
 
-## 🛠️ Step 1: Create the Bot User in ERPNext Desk
+## 🛠️ Step 1: Create the Dedicated Bot User in ERPNext
 
 To maintain a clean audit log and adhere to least-privilege security:
 
-1. Log into your ERPNext instance: `https://erpnext.my-edu.my`.
-2. Go to: **Settings ➔ Users ➔ New User**.
-   * **Email:** `ai.agent@my-edu.my`
-   * **First Name:** `AI Agent`
+1. Log into your ERPNext instance (`https://erp.example.com`).
+2. Navigate to: **Settings ➔ Users ➔ New User**.
+   * **Email:** `ai.operator@example.com`
+   * **First Name:** `AI Operator`
    * **Role Profile:** Check `System Manager` (or customize granular roles: *Stock Manager*, *Sales Manager*, *HR User*, etc.).
    * Save the user.
 3. Scroll down to the **API Access** section on the user page:
@@ -48,9 +48,9 @@ To maintain a clean audit log and adhere to least-privilege security:
 
 ---
 
-## 🚢 Step 2: Deploy to TrueNAS SCALE (via Arcane or Compose)
+## 🚢 Step 2: Deploy Container (Docker Compose / TrueNAS SCALE)
 
-In **Arcane** or your TrueNAS compose editor, add the `mcp-server` service defined in `compose.fragment.yaml`:
+In **Arcane**, **Portainer**, or your Docker Compose file, add the `mcp-server` service:
 
 ```yaml
 services:
@@ -61,7 +61,9 @@ services:
     ports:
       - "8000:8000"
     environment:
-      ERPNEXT_URL: "https://erpnext.my-edu.my" # or "http://frontend:8080"
+      # If on the same docker network as ERPNext, you can point to http://frontend:8080
+      # Or your public/internal HTTPS URL:
+      ERPNEXT_URL: "https://erp.example.com"
       ERPNEXT_API_KEY: "your_generated_api_key"
       ERPNEXT_API_SECRET: "your_generated_api_secret"
       ERPNEXT_VERIFY_SSL: "true"
@@ -69,52 +71,66 @@ services:
       MCP_PORT: "8000"
 ```
 
-Save and deploy the stack. The MCP SSE endpoint will now be live at:
+Start the container. The MCP Server-Sent Events (SSE) endpoint will be live at:
 ```
-http://<TRUENAS_IP>:8000/sse
+http://<HOST_IP>:8000/sse
 ```
 
 ---
 
-## ⚡ Step 3: Connect Antigravity to the MCP Server
+## ⚡ Step 3: Connect Your AI Assistant (Antigravity / Claude / Cursor)
 
-In Antigravity, add the MCP server configuration to your MCP config:
+Add the MCP server configuration to your AI client's settings:
 
 ```json
 {
   "mcpServers": {
     "erpnext": {
-      "url": "http://<TRUENAS_IP>:8000/sse",
+      "url": "http://<HOST_IP>:8000/sse",
       "transport": "sse"
     }
   }
 }
 ```
-*(Replace `<TRUENAS_IP>` with your TrueNAS SCALE local LAN IP address or your Tailscale IP).*
+*(Replace `<HOST_IP>` with your host's LAN or Tailscale IP).*
 
 ---
 
-## 💬 Step 4: Test Autonomous Operations in Chat
+## 💬 Step 4: Example Natural Language Prompts
 
-Once connected, you can instruct Antigravity naturally:
+Once connected, your AI assistant can autonomously execute ERP operations:
 
 ### 1. Registering New Items
-> *"Register a new Item: Stainless Steel Socket Head Cap Screw M4x16mm. Item code: `FAST-M4-16`, standard rate RM 0.45, stock UOM Nos, item group Hardware."*
+> *"Register a new Item: Stainless Steel Socket Head Cap Screw M4x16mm. Item code: `FAST-M4-16`, standard rate 0.45, stock UOM Nos, item group Hardware."*
 
 ### 2. Checking Stock Balance
-> *"Check the stock balance for item `FAST-M4-16` across all our warehouses."*
+> *"Check the current stock balance for item `FAST-M4-16` across all warehouses."*
 
 ### 3. Creating a Sales Quote
-> *"Create a draft quotation for customer 'Pentamaster' with 100 units of `FAST-M4-16` at RM 0.45 each."*
+> *"Create a draft quotation for customer 'Acme Corp' with 100 units of `FAST-M4-16` at 0.45 each."*
 
 ### 4. CRM & Customer Support
-> *"Add a new lead: Ahmad Albab, phone 019-8765432, email ahmad@test.com, interested in our equipment design services."*
+> *"Add a new lead: Alex Wong, phone +60123456789, email alex@example.com, interested in our manufacturing equipment."*
 
 ### 5. HRMS Self-Service
 > *"Submit a draft casual leave application for employee 'EMP-001' from 2026-12-01 to 2026-12-03."*
 
 ---
 
+## 🙏 Acknowledgements & References
+
+This project builds upon the open-source efforts of the Frappe and AI ecosystems:
+
+* **[Model Context Protocol (MCP)](https://modelcontextprotocol.io/)** — Anthropic's open protocol for connecting AI assistants to data sources and tools.
+* **[Frappe Framework](https://github.com/frappe/frappe) & [ERPNext](https://github.com/frappe/erpnext)** — The open-source ERP system created and maintained by Frappe Technologies.
+* **Community Prior Art & Inspirations:**
+  * [frappe/mcp](https://github.com/frappe/mcp) — Frappe's official native MCP implementation.
+  * [rakeshgangwar/erpnext-mcp-server](https://github.com/rakeshgangwar/erpnext-mcp-server) — TypeScript-based REST MCP implementation.
+  * [Casys-AI/mcp-erpnext](https://github.com/Casys-AI/mcp-erpnext) — Exploration of interactive Deno/TypeScript ERPNext MCP tools.
+  * [buildswithpaul/Frappe_Assistant_Core](https://github.com/buildswithpaul/Frappe_Assistant_Core) — ERPNext LLM middleware architecture.
+
+---
+
 ## 📄 License
 
-This project is open-source under the [MIT License](LICENSE).
+This project is licensed under the [MIT License](LICENSE).
